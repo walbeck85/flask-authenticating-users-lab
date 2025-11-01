@@ -83,7 +83,7 @@ class CheckSession(Resource):
                 return user_schema.dump(user), 200
         
         # 4. If no user_id or user not found, return 401
-        return {'error': 'Unauthorized'}, 401
+        return {}, 401
 
 # --- End Authentication Classes ---
 
