@@ -4,7 +4,7 @@ from flask import Flask, make_response, jsonify, request, session
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 
-from .models import db, Article, User, ArticlesSchema, UserSchema
+from models import db, Article, User, ArticlesSchema, UserSchema
 
 app = Flask(__name__)
 app.secret_key = b'Y\xf1Xz\x00\xad|eQ\x80t \xca\x1a\x10K'
