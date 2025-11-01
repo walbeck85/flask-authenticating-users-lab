@@ -1,166 +1,119 @@
-# Lab: Authenticating Users
+# Lab Submission: Course 10, Module 2 - Authenticating Users
 
-## Scenario
+This repository contains my solution for the "Authenticating Users" lab. The goal is to implement a complete authentication workflow (login, logout, and session checking) in a Flask-RESTful backend, building on the existing blog site. The work follows the patterns and rubric from the Flatiron lesson.
 
-In this lab, we'll continue working on the blog site from the last lab and set
-up a basic login feature.
+## Features
 
-## Tools & Resources
+  * **Login:** Implemented a `Login` resource (`POST /login`) that verifies a user by `username` and creates a persistent session by storing the `user_id`.
+  * **Logout:** Implemented a `Logout` resource (`DELETE /logout`) that destroys the session by clearing the `user_id`.
+  * **Session Check:** Implemented a `CheckSession` resource (`GET /check_session`) to allow the frontend to verify an active session on page load.
+  * **Structural Integrity:** Resolved structural import conflicts between the Flask app, seed scripts, and pytest runner to ensure all components function correctly within a consistent environment.
 
-- [GitHub Repo](https://github.com/learn-co-curriculum/flask-authenticating-users-lab)
-- [What is Authentication? - auth0](https://auth0.com/intro-to-iam/what-is-authentication)
-- [API - Flask: class flask.session](https://flask.palletsprojects.com/en/2.2.x/api/#flask.session)
+## Environment
 
-## Set Up
+  * **Backend:** Python 3.13.7 (via `pipenv`), Flask, Flask-SQLAlchemy, Flask-Migrate, Flask-RESTful, Marshmallow
+  * **Frontend:** React (via `npm`)
+  * **Testing:** `pytest`
 
-There is some starter code in place for a Flask API backend and a React
-frontend. To get set up, run:
+## Setup
+
+Please follow these steps to ensure the environment is built correctly. The database commands must be run from within the `server/` directory due to the project's import structure.
+
+1.  Clone and enter the project directory:
+
+    ```bash
+    git clone https://github.com/walbeck85/flask-authenticating-users-lab
+    cd flask-authenticating-users-lab
+    ```
+
+2.  Install backend and frontend dependencies:
+
+    ```bash
+    pipenv install
+    npm install --prefix client
+    ```
+
+3.  Activate the virtual environment:
+
+    ```bash
+    pipenv shell
+    ```
+
+4.  Build and seed the database:
+
+    ```bash
+    # From the project root, navigate into the server directory
+    cd server
+
+    # Set the Flask app context for this directory
+    export FLASK_APP=app.py
+
+    # Run migrations and seed the database
+    flask db upgrade
+    python seed.py
+
+    # Return to the project root
+    cd ..
+    ```
+
+## How to Run the Application
+
+The application requires two terminals to run the backend and frontend concurrently.
+
+**Terminal 1: Run the Backend (Flask)**
 
 ```bash
-pipenv install && pipenv shell
-npm install --prefix client
+# Activate the virtual environment if not already active
+pipenv shell
+
+# Navigate into the server directory
 cd server
-flask db upgrade
-python seed.py
-```
 
-You can work on this lab by running the tests with `pytest -x`. It will also be
-helpful to see what's happening during the request/response cycle by running the
-app in the browser. You can run the Flask server with:
+# Set the Flask app context
+export FLASK_APP=app.py
 
-```bash
+# Run the application
 python app.py
 ```
 
-And you can run React in another terminal with:
+**Terminal 2: Run the Frontend (React)**
 
 ```bash
+# From the project root
 npm start --prefix client
 ```
 
-You don't have to make any changes to the React code to get this lab working.
-The React frontend has already defined a proxy in `package.json` as shown:
+The React app will open at `http://localhost:3000` and is proxied to the Flask server at `http://localhost:5555`.
 
-```json
-"proxy": "http://localhost:5555",
-```
+## Tests
 
-The proxy avoids CORS issues and allows the server to set a session cookie to
-store the user's login data.
-
-## Instructions
-
-### Task 1: Define the Problem
-
-For our basic login feature, we'll need the following functionality:
-
-- A user can log in by providing their username in a form.
-- A user can log out.
-- A user can remain logged in, even after refreshing the page.
-
-We'll need to create the resources to handle each of these features.
-
-### Task 2: Determine the Design
-
-We'll need to build the following resources:
-
-- `Login` is located at `/login`.
-
-  - It has one route, `post()`.
-  - `post()` gets a `username` from `request`'s JSON.
-  - `post()` retrieves the user by `username` (we made these unique for you).
-  - `post()` sets the session's `user_id` value to the user's `id`.
-  - `post()` returns the user as JSON with a 200 status code.
-
-- `Logout` is located at `/logout`.
-
-  - It has one route, `delete()`.
-  - `delete()` removes the `user_id` value from the session.
-  - `delete()` returns no data and a 204 (No Content) status code.
-
-- `CheckSession` is located at `/check_session`.
-  - It has one route, `get()`.
-  - `get()` retrieves the `user_id` value from the session.
-  - If the session has a `user_id`, `get()` returns the user as JSON with a 200
-    status code.
-  - If the session does not have a `user_id`, `get()` returns no data and a 401
-    (Unauthorized) status code.
-
-### Task 3: Develop, Test, and Refine the Code
-
-#### Step 1: Create Routes
-
-- /login, post()
-  - should handle the request to get username
-  - find User in database by username. We'll need the id for the next step.
-- /delete, delete()
-- /check_session, get()
-
-#### Step 2: Initialize, Retrieve, and/or Update Session
-
-- Session: /login post()
-  - set session['user_id'] to the found user's id
-- Session: /logout delete()
-  - remove the value for session['user_id']
-- Session: /check_session get()
-  - get current value of session['user_id'] (it may not exist)
-
-#### Step 3: Return the Response
-
-- Session: /login post()
-  - return user as JSON with a 200 status code
-- Session: /logout delete()
-  - returns no data and a 204 (No Content) status code
-- Session: /check_session get()
-  - If the session has a `user_id`, `get()` returns the user as JSON with a 200
-    status code.
-  - If the session does not have a `user_id`, `get()` returns no data and a 401
-    (Unauthorized) status code.
-
-The tests are not looking for invalid users for /login, but if you have extra time, consider what response you should send if a user is not found with the given username.
-
-#### Step 4: Test and Refine the Code
-
-Run the test suite:
+Run the test suite from the project **root** with the virtual environment active.
 
 ```bash
-pytest
+pytest -x -v
 ```
 
-If any tests aren't passing, refine your code using each error message.
+## Rubric Alignment
 
-View the app in browser and test login, logout, and session persistence. Refine code if needed.
+  * **Login (`POST /login`):** Retrieves a user by `username`, sets `session['user_id']` to the `user.id`, and returns the serialized user object with a 200 status.
+  * **Logout (`DELETE /logout`):** Removes the `user_id` from the session (by setting it to `None`) and returns an empty dictionary with a 204 status.
+  * **Check Session (`GET /check_session`):**
+      * If `session['user_id']` exists, returns the full user object with a 200 status.
+      * If `session['user_id']` does not exist, returns an empty dictionary with a 401 status, as required by the tests.
 
-Feel free to also take a look at how the frontend logic is set up to use these endpoints.
+## Branch and PR Workflow
 
-#### Step 5: Commit and Push Git History
+All work was completed on a `feature/login` branch. This branch includes the core logic for the three endpoints as well as the necessary structural fixes to align the import paths for Flask, the seed script, and pytest. This branch was merged into `main` after all tests passed.
 
-* Commit and push your code:
+## Instructor Checklist
 
-```bash
-git add .
-git commit -m "final solution"
-git push
-```
+To verify the submission:
 
-* If you created a separate feature branch, remember to open a PR on main and merge.
-
-### Task 4: Document and Maintain
-
-Best Practice documentation steps:
-* Add comments to the code to explain purpose and logic, clarifying intent and functionality of your code to other developers.
-* Update README text to reflect the functionality of the application following https://makeareadme.com. 
-  * Add screenshot of completed work included in Markdown in README.
-* Delete any stale branches on GitHub
-* Remove unnecessary/commented out code
-* If needed, update git ignore to remove sensitive data
-
-## Important Submission Note
-
-Before you submit your solution, you need to save your progress with git.
-
-1. Add your changes to the staging area by executing `git add .`.
-2. Create a commit by executing `git commit -m "Your commit message"`.
-3. Push your commits to GitHub by executing `git push origin main`.
-
-CodeGrade will grade your lab using the same tests as are provided in the `testing/` directory.
+1.  `pipenv install && npm install --prefix client`
+2.  `pipenv shell`
+3.  `cd server`
+4.  `export FLASK_APP=app.py`
+5.  `flask db upgrade && python seed.py`
+6.  `cd ..`
+7.  `pytest -x -v` (from project root) to verify all 3 tests pass.
+8.  (Optional) Run the backend (`cd server && python app.py`) and frontend (`npm start --prefix client`) to test login/logout in the browser.
